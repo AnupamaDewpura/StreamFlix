@@ -2,7 +2,7 @@
   "name": "streamflix",
   "version": "1.0.0",
   "scripts": {
-    "build": "cd frontend && npm install && npm run build && cd ../backend && npm install && npm rebuild better-sqlite3 && npx puppeteer browsers install chrome",
+    "build": "cd frontend && npm install && npm run build && cd ../backend && npm install && npm rebuild better-sqlite3 && node -e \"const p=require('puppeteer-core'); console.log('puppeteer-core ready')\"",
     "start": "cd backend && node server.js"
   }
 }

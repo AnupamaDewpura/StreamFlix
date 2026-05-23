@@ -46,8 +46,40 @@ function getChromePath() {
   return null;
 }
 
+function diagnoseChrome() {
+  const fs = require('fs');
+  const checkPaths = [
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable', 
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+    '/snap/bin/chromium',
+    '/root/.cache/puppeteer',
+    '/root/.cache/puppeteer/chrome',
+  ];
+  console.log('  Chrome diagnosis:');
+  console.log('  PUPPETEER_EXECUTABLE_PATH =', process.env.PUPPETEER_EXECUTABLE_PATH || 'NOT SET');
+  checkPaths.forEach(p => {
+    console.log(`  ${p}: ${fs.existsSync(p) ? 'EXISTS' : 'not found'}`);
+  });
+
+  // List what's in the puppeteer cache if it exists
+  try {
+    const cacheDir = '/root/.cache/puppeteer/chrome';
+    if (fs.existsSync(cacheDir)) {
+      const versions = fs.readdirSync(cacheDir);
+      versions.forEach(v => {
+        const chromeBin = `/root/.cache/puppeteer/chrome/${v}/chrome-linux64/chrome`;
+        console.log(`  Cache version ${v}: ${fs.existsSync(chromeBin) ? 'chrome EXISTS' : 'chrome NOT FOUND'}`);
+      });
+    }
+  } catch(e) {}
+}
+
+
 async function resolveStreamUrl(channelPageUrl, baseUrl) {
   let browser;
+  diagnoseChrome()
   try {
     const chromePath = getChromePath();
     if (!chromePath) {
