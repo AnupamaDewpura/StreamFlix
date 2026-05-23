@@ -22,18 +22,51 @@ async function fetchPage(url, referer) {
   return data;
 }
 
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
+
+// Find Chrome in all the places Railway/Linux might put it
+function getChromePath() {
+  const paths = [
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+    '/snap/bin/chromium',
+    '/root/.cache/puppeteer/chrome/linux-148.0.7778.167/chrome-linux64/chrome',
+    '/root/.cache/puppeteer/chrome/linux-127.0.6533.88/chrome-linux64/chrome',
+  ];
+  const fs = require('fs');
+  for (const p of paths) {
+    if (p && fs.existsSync(p)) {
+      console.log(`  Using Chrome at: ${p}`);
+      return p;
+    }
+  }
+  return null;
+}
 
 async function resolveStreamUrl(channelPageUrl, baseUrl) {
   let browser;
   try {
+    const chromePath = getChromePath();
+    if (!chromePath) {
+      console.error('  Chrome not found. Run: npx puppeteer browsers install chrome');
+      return null;
+    }
+
     browser = await puppeteer.launch({
+      executablePath: chromePath,
       headless: 'new',
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-web-security',
+        '--disable-gpu',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
       ]
     });
 
