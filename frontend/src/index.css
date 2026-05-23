@@ -1,0 +1,53 @@
+/* Import our fonts from Google */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #141414;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar - makes it look Netflix-like */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #141414; }
+::-webkit-scrollbar-thumb { background: #E50914; border-radius: 2px; }
+
+/* The dark gradient on the hero banner */
+.hero-gradient {
+  background:
+    linear-gradient(to right, rgba(20,20,20,0.9) 0%, rgba(20,20,20,0.5) 50%, transparent 100%),
+    linear-gradient(to top, rgba(20,20,20,1) 0%, transparent 30%);
+}
+
+/* Dark gradient on stream cards */
+.card-gradient {
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%);
+}
+
+/* The blinking LIVE dot animation */
+@keyframes livePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.live-badge { animation: livePulse 1.5s infinite; }
+
+/* Horizontal scrolling row (like Netflix rows) */
+.stream-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+}
+.stream-row::-webkit-scrollbar { display: none; }
