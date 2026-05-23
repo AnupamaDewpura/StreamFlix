@@ -8,7 +8,6 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
-const { ensureChrome } = require('./installChrome');
 
 // Import our route files (we'll create these next)
 const streamsRouter = require('./routes/streams');
@@ -23,17 +22,14 @@ const PORT = process.env.PORT || 3001;
 initializeDatabase();
 
 // Install Chrome on startup if not present, then start sync schedule
-ensureChrome().then(() => {
-  cron.schedule('*/45 * * * *', () => {
-    console.log('Running scheduled stream sync...');
-    syncAllSites();
-  });
-
-  // First sync after Chrome is ready
-  setTimeout(() => {
-    syncAllSites();
-  }, 5000);
+cron.schedule('*/45 * * * *', () => {
+  console.log('Running scheduled stream sync...');
+  syncAllSites();
 });
+
+setTimeout(() => {
+  syncAllSites();
+}, 10000);
 
 cron.schedule('*/45 * * * *', () => {
   console.log('Running scheduled stream sync...');
