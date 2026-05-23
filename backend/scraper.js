@@ -26,23 +26,41 @@ const puppeteer = require('puppeteer-core');
 
 // Find Chrome in all the places Railway/Linux might put it
 function getChromePath() {
-  const paths = [
-    process.env.PUPPETEER_EXECUTABLE_PATH,
+  const fs = require('fs');
+
+  // Check environment variable first
+  if (process.env.PUPPETEER_EXECUTABLE_PATH && 
+      fs.existsSync(process.env.PUPPETEER_EXECUTABLE_PATH)) {
+    return process.env.PUPPETEER_EXECUTABLE_PATH;
+  }
+
+  // Scan puppeteer cache for any installed version
+  const cacheBase = '/root/.cache/puppeteer/chrome';
+  if (fs.existsSync(cacheBase)) {
+    const versions = fs.readdirSync(cacheBase);
+    for (const v of versions) {
+      const bin = `${cacheBase}/${v}/chrome-linux64/chrome`;
+      if (fs.existsSync(bin)) {
+        console.log(`  Using Chrome at: ${bin}`);
+        return bin;
+      }
+    }
+  }
+
+  // System Chrome fallbacks
+  const systemPaths = [
     '/usr/bin/google-chrome',
     '/usr/bin/google-chrome-stable',
     '/usr/bin/chromium',
     '/usr/bin/chromium-browser',
-    '/snap/bin/chromium',
-    '/root/.cache/puppeteer/chrome/linux-148.0.7778.167/chrome-linux64/chrome',
-    '/root/.cache/puppeteer/chrome/linux-127.0.6533.88/chrome-linux64/chrome',
   ];
-  const fs = require('fs');
-  for (const p of paths) {
-    if (p && fs.existsSync(p)) {
-      console.log(`  Using Chrome at: ${p}`);
+  for (const p of systemPaths) {
+    if (fs.existsSync(p)) {
+      console.log(`  Using system Chrome at: ${p}`);
       return p;
     }
   }
+
   return null;
 }
 
@@ -79,7 +97,7 @@ function diagnoseChrome() {
 
 async function resolveStreamUrl(channelPageUrl, baseUrl) {
   let browser;
-  diagnoseChrome()
+  diagnoseChrome
   try {
     const chromePath = getChromePath();
     if (!chromePath) {
